@@ -310,11 +310,16 @@ class PageParametres(customtkinter.CTkFrame):
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(0, weight=1)
 
+		# This page permit to change the infomartion in .env (database connection), theme (dark white), and other parameters
+		# Widget to display the title of the page
+		
+
+
 		# Add other widgets for the Parametres page here
 
 #############################################
 #                                           #
-#           Fonction des pages              #
+#         Fonction page accueil             #
 #                                           #
 #############################################
 class CircularProgressBarClients(tk.Canvas):
@@ -344,6 +349,26 @@ class CircularProgressBarMoney(tk.Canvas):
 		self.create_arc((5, 5, self.size-5, self.size-5), start=90, extent=-angle, outline='', fill=self.fill_color, tags="progress")
 		self.create_oval((40, 40, self.size-40, self.size-40), fill=self.bg_color, outline='')
 		self.create_text((self.size//2, self.size//2), text=f"{current}$", fill=self.fill_color, font=customtkinter.CTkFont(size=24, weight="bold"))
+
+#############################################
+#                                           #
+#          Fonction page client             #
+#                                           #
+#############################################
+
+#############################################
+#                                           #
+#          Fonction page bourse             #
+#                                           #
+#############################################
+
+#############################################
+#                                           #
+#       Fonction page parametre             #
+#                                           #
+#############################################
+
+
 
 if __name__ == "__main__":
 	root = tk.Tk()
