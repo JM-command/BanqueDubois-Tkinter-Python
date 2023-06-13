@@ -8,6 +8,11 @@ import math
 
 dotenv.load_dotenv()
 
+#############################################
+#                                           #
+#             Fonction basique              #
+#                                           #
+#############################################
 class Database:
 	def __init__(self):
 		self.connection = mysql.connector.connect(
@@ -247,6 +252,11 @@ class MainApplication(tk.Tk):
 	def show_parametres(self):
 		self.show_page("parametres")
 
+#############################################
+#                                           #
+#                Les pages                  #
+#                                           #
+#############################################
 class PageAccueil(customtkinter.CTkFrame):
 	def __init__(self, parent):
 		super().__init__(parent, corner_radius=20, height=540, width=760)
@@ -276,7 +286,6 @@ class PageAccueil(customtkinter.CTkFrame):
 		total_money = self.data_query.get_all_money()
 		total_money_bar.update_progress(int(total_money), int(os.getenv("LIMITE_ARGENT")),)
 
-
 class PageClients(customtkinter.CTkFrame):
 	def __init__(self, parent):
 		super().__init__(parent, corner_radius=20, height=540, width=760)
@@ -303,6 +312,11 @@ class PageParametres(customtkinter.CTkFrame):
 
 		# Add other widgets for the Parametres page here
 
+#############################################
+#                                           #
+#           Fonction des pages              #
+#                                           #
+#############################################
 class CircularProgressBarClients(tk.Canvas):
 	def __init__(self, parent, size, bg_color='#2b2b2b', fill_color='#00aaff'):
 		super().__init__(parent, width=size, height=size, bg=bg_color, highlightthickness=0)
