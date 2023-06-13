@@ -99,6 +99,18 @@ class DataQuery:
 		query = "UPDATE operations SET compte_id = %s, client_id = %s, type = %s, montant = %s WHERE id = %s"
 		self.db.execute_query(query, (compte_id, client_id, type, montant, id))
 
+	def get_total_clients(self):
+		query = "SELECT COUNT(*) FROM clients"
+		result = self.db.execute_query(query)
+		total_clients = result[0][0]  # Récupère la valeur de la première colonne de la première ligne
+		return total_clients
+
+	def get_all_money(self):
+		query = "SELECT SUM(solde) FROM comptes"
+		result = self.db.execute_query(query)
+		total_money = result[0][0]  # Récupère la valeur de la première colonne de la première ligne
+		return total_money
+
 class SplashScreen:
 	def __init__(self, root):
 		self.root = root
@@ -221,7 +233,7 @@ class MainApplication(tk.Tk):
 	def show_page(self, page_name):
 		for page in self.pages.values():
 			page.grid_forget()
-		self.pages[page_name].grid(row=1, column=1, padx=(20, 20), pady=(20, 20), sticky="nsew")
+		self.pages[page_name].grid(row=0, column=1, padx=(20, 20), pady=(20, 20), sticky="nw")
 
 	def show_accueil(self):
 		self.show_page("accueil")
@@ -235,76 +247,89 @@ class MainApplication(tk.Tk):
 	def show_parametres(self):
 		self.show_page("parametres")
 
-
 class PageAccueil(customtkinter.CTkFrame):
 	def __init__(self, parent):
-		super().__init__(parent, corner_radius=20, height=540, width=740)
+		super().__init__(parent, corner_radius=20, height=540, width=760)
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(0, weight=1)
+		self.data_query = DataQuery()
 
-		label = customtkinter.CTkLabel(self, text="Bienvenue sur l'application de la Banque Dubois !", font=customtkinter.CTkFont(size=24, weight="bold"))
-		label.grid(row=0, column=0, padx=20, pady=20)
-		
+		# Widget to display the title of the page
+		label_title = customtkinter.CTkLabel(self, text="Accueil", font=customtkinter.CTkFont(size=20, weight="bold"))
+		label_title.grid(row=0, column=1, padx=20, pady=20)
+
 		# Add other widgets for the Accueil page here
-
+	
 		# Widget to display the total number of clients - CircularProgressBarClients
+		label_total_clients = customtkinter.CTkLabel(self, text="Nombre de clients", font=customtkinter.CTkFont(size=20, weight="bold"))
+		label_total_clients.grid(row=1, column=0, padx=20, pady=20)
 		total_clients_bar = CircularProgressBarClients(self, size=200, bg_color='#2b2b2b', fill_color='#00aaff')
-		total_clients_bar.grid(row=1, column=0, padx=20, pady=10)
-		total_clients_bar.update_progress(self.get_total_clients(), int(os.getenv("LIMITE_CLIENTS")),)
+		total_clients_bar.grid(row=2, column=0, padx=20, pady=20)
+		total_clients = self.data_query.get_total_clients()
+		total_clients_bar.update_progress(int(total_clients), int(os.getenv("LIMITE_CLIENTS")),)
 
+		# Widget to display the total money in bank - CircularProgressBarMoney
+		label_total_money = customtkinter.CTkLabel(self, text="Argent Total", font=customtkinter.CTkFont(size=20, weight="bold"))
+		label_total_money.grid(row=1, column=2, padx=20, pady=20)
+		total_money_bar = CircularProgressBarMoney(self, size=200, bg_color='#2b2b2b', fill_color='#00aaff')
+		total_money_bar.grid(row=2, column=2, padx=20, pady=20)
+		total_money = self.data_query.get_all_money()
+		total_money_bar.update_progress(int(total_money), int(os.getenv("LIMITE_ARGENT")),)
 
-	def get_total_clients(self):
-		data_query = DataQuery()
-		clients = data_query.get_clients()
-		return len(clients)
 
 class PageClients(customtkinter.CTkFrame):
 	def __init__(self, parent):
-		super().__init__(parent, corner_radius=20, height=540, width=740)
+		super().__init__(parent, corner_radius=20, height=540, width=760)
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(0, weight=1)
 
-		label = customtkinter.CTkLabel(self, text="Gestion des clients", font=customtkinter.CTkFont(size=24, weight="bold"))
-		label.grid(row=0, column=0, padx=20, pady=20)
+		
 
 		# Add other widgets for the Clients page here
 
 class PageBourse(customtkinter.CTkFrame):
 	def __init__(self, parent):
-		super().__init__(parent, corner_radius=20, height=540, width=740)
+		super().__init__(parent, corner_radius=20, height=540, width=760)
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(0, weight=1)
-
-		label = customtkinter.CTkLabel(self, text="Informations sur la Bourse", font=customtkinter.CTkFont(size=24, weight="bold"))
-		label.grid(row=0, column=0, padx=20, pady=20)
 
 		# Add other widgets for the Bourse page here
 
 class PageParametres(customtkinter.CTkFrame):
 	def __init__(self, parent):
-		super().__init__(parent, corner_radius=20, height=540, width=740)
+		super().__init__(parent, corner_radius=20, height=540, width=760)
 		self.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(0, weight=1)
-
-		label = customtkinter.CTkLabel(self, text="Paramètres de l'application", font=customtkinter.CTkFont(size=24, weight="bold"))
-		label.grid(row=0, column=0, padx=20, pady=20)
 
 		# Add other widgets for the Parametres page here
 
 class CircularProgressBarClients(tk.Canvas):
-    def __init__(self, parent, size, bg_color='#2b2b2b', fill_color='#00aaff'):
-        super().__init__(parent, width=size, height=size, bg=bg_color, highlightthickness=0)
-        self.size = size
-        self.bg_color = bg_color
-        self.fill_color = fill_color
+	def __init__(self, parent, size, bg_color='#2b2b2b', fill_color='#00aaff'):
+		super().__init__(parent, width=size, height=size, bg=bg_color, highlightthickness=0)
+		self.size = size
+		self.bg_color = bg_color
+		self.fill_color = fill_color
 
-    def update_progress(self, current, total):
-        angle = 360 * current / total
-        self.delete("progress")
-        self.create_arc((5, 5, self.size-5, self.size-5), start=90, extent=-angle, outline='', fill=self.fill_color, tags="progress")
-        self.create_oval((40, 40, self.size-40, self.size-40), fill=self.bg_color, outline='')
-        self.create_text((self.size//2, -5), text="My Small text of widget", fill=self.fill_color, font=customtkinter.CTkFont(size=16, weight="bold"))
-        self.create_text((self.size//2, self.size//2), text=f"{current}/{total}", fill=self.fill_color, font=customtkinter.CTkFont(size=24, weight="bold"))
+	def update_progress(self, current, total):
+		angle = 360 * current / total
+		self.delete("progress")
+		self.create_arc((5, 5, self.size-5, self.size-5), start=90, extent=-angle, outline='', fill=self.fill_color, tags="progress")
+		self.create_oval((40, 40, self.size-40, self.size-40), fill=self.bg_color, outline='')
+		self.create_text((self.size//2, self.size//2), text=f"{current}", fill=self.fill_color, font=customtkinter.CTkFont(size=24, weight="bold"))
+
+class CircularProgressBarMoney(tk.Canvas):
+	def __init__(self, parent, size, bg_color='#2b2b2b', fill_color='#00aaff'):
+		super().__init__(parent, width=size, height=size, bg=bg_color, highlightthickness=0)
+		self.size = size
+		self.bg_color = bg_color
+		self.fill_color = fill_color
+
+	def update_progress(self, current, total):
+		angle = 360 * current / total
+		self.delete("progress")
+		self.create_arc((5, 5, self.size-5, self.size-5), start=90, extent=-angle, outline='', fill=self.fill_color, tags="progress")
+		self.create_oval((40, 40, self.size-40, self.size-40), fill=self.bg_color, outline='')
+		self.create_text((self.size//2, self.size//2), text=f"{current}$", fill=self.fill_color, font=customtkinter.CTkFont(size=24, weight="bold"))
 
 if __name__ == "__main__":
 	root = tk.Tk()
